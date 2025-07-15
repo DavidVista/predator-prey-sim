@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>turtle_hunt</name>
+  <version>0.1.0</version>
+  <description>Turtle predator-prey simulation</description>
+
+  <maintainer email="example@email.com">Example Name</maintainer>
+  <license>Apache 2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>turtlesim</depend>
+  <depend>message_filters</depend>
+</package>
