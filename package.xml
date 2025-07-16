@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>turtle_hunt</name>
+  <name>predator-prey-sim</name>
   <version>0.1.0</version>
   <description>Turtle predator-prey simulation</description>
 
