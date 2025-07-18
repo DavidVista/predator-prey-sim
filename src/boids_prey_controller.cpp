@@ -31,15 +31,15 @@ public:
         cohesion_weight_ = 0.1;        // Weight for cohesion rule (reduced)
         predator_avoidance_weight_ = 0.2; // Weight for predator avoidance (reduced)
         
-        // Flocking parameters
-        neighbor_radius_ = 3.0;        // Radius to consider neighbors
-        separation_radius_ = 1.5;      // Minimum distance between prey
-        predator_detection_radius_ = 4.0; // Distance to detect predator
+        // Flocking parameters - Appropriate for turtlesim (11x11 space)
+        neighbor_radius_ = 2.0;        // Radius to consider neighbors
+        separation_radius_ = 1.0;      // Minimum distance between prey
+        predator_detection_radius_ = 3.0; // Distance to detect predator
         
         // Movement parameters
-        max_speed_ = 0.0;               // Maximum speed (completely stopped)
-        min_speed_ = 0.0;               // Minimum speed (completely stopped)
-        max_turn_rate_ = 0.0;           // Maximum turning rate (completely stopped)
+        max_speed_ = 1.0;               // Increased maximum speed (antelope fleeing speed)
+        min_speed_ = 0.3;               // Increased minimum speed (antelope normal speed)
+        max_turn_rate_ = 0.5;           // Maximum turning rate
         
         // Border limits
         border_min_ = 0.5;
@@ -138,8 +138,21 @@ private:
         if (force_magnitude > 0.0) {
             Vector2D desired_direction = total_force.normalize();
             
-            // FORCE EXACT SPEED - ignore force magnitude completely
-            double desired_speed = max_speed_; // Always use max_speed (which is 0.0)
+            // Calculate speed based on force magnitude and predator presence
+            double desired_speed;
+            if (predator_pose_received_) {
+                double dx = predator_pose_.x - prey_pose_.x;
+                double dy = predator_pose_.y - prey_pose_.y;
+                double distance_to_predator = std::sqrt(dx*dx + dy*dy);
+                
+                if (distance_to_predator < predator_detection_radius_) {
+                    desired_speed = max_speed_; // Flee at max speed when predator detected
+                } else {
+                    desired_speed = min_speed_; // Normal speed when safe
+                }
+            } else {
+                desired_speed = min_speed_; // Normal speed when no predator info
+            }
             
             // Calculate angle to desired direction
             double desired_angle = std::atan2(desired_direction.y, desired_direction.x);
@@ -150,13 +163,13 @@ private:
             while (angle_diff > M_PI) angle_diff -= 2 * M_PI;
             while (angle_diff < -M_PI) angle_diff += 2 * M_PI;
             
-            // Set velocities - FORCE EXACT SPEED (COMPLETELY STOPPED)
-            cmd_vel.linear.x = 0.0; // Always exactly 0.0
-            cmd_vel.angular.z = 0.0; // Always exactly 0.0
+            // Set velocities with realistic speeds
+            cmd_vel.linear.x = desired_speed;
+            cmd_vel.angular.z = std::clamp(angle_diff, -max_turn_rate_, max_turn_rate_);
     } else {
         // No force - maintain current direction with minimum speed
-        cmd_vel.linear.x = 0.0; // Always exactly 0.0
-        cmd_vel.angular.z = 0.0; // Always exactly 0.0
+        cmd_vel.linear.x = min_speed_;
+        cmd_vel.angular.z = 0.0;
     }
     
     // DEBUG: Log the actual velocity being published

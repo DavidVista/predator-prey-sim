@@ -30,16 +30,16 @@ public:
             std::bind(&PredatorController::prey_pose_callback, this, std::placeholders::_1)
         );
         
-        // Hunting parameters - ENHANCED for Boids prey
-        detection_range_ = 20.0; // Much larger detection range
-        stalking_range_ = 15.0;  // Much larger stalking range
-        attack_range_ = 8.0;     // Much larger attack range
-        catch_range_ = 0.8;      // Slightly larger catch range
+        // Hunting parameters - Appropriate for turtlesim (11x11 space)
+        detection_range_ = 8.0;  // Detection range (most of the map)
+        stalking_range_ = 5.0;   // Stalking range (half the map)
+        attack_range_ = 2.0;     // Attack range (close proximity)
+        catch_range_ = 0.8;      // Catch range (very close)
         
-        // Speed parameters - ULTRA FAST for Boids prey
-        stalking_speed_ = 10.0;  // Ultra fast stalking speed
-        hunting_speed_ = 15.0;   // Ultra fast hunting speed
-        attack_speed_ = 20.0;    // Ultra fast attack speed
+        // Speed parameters - Realistic cheetah speeds for turtlesim
+        stalking_speed_ = 0.4;   // Slow, stealthy stalking
+        hunting_speed_ = 1.2;    // Medium hunting speed
+        attack_speed_ = 2.0;     // Fast sprint attack
         
         // Respawn parameters
         respawn_delay_ = 3;      // Seconds to wait before respawning prey

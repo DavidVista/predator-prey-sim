@@ -19,8 +19,8 @@ public:
         
         // Initialize random number generator
         random_engine_ = std::mt19937(std::random_device{}());
-        linear_dist_ = std::uniform_real_distribution<double>(0.2, 0.6);  // Significantly decreased speed range
-        angular_dist_ = std::uniform_real_distribution<double>(-0.5, 0.5);  // Significantly decreased turn rate
+        linear_dist_ = std::uniform_real_distribution<double>(0.5, 1.2);  // Increased antelope normal speed
+        angular_dist_ = std::uniform_real_distribution<double>(-0.5, 0.5);  // Normal turn rate
         direction_change_dist_ = std::uniform_real_distribution<double>(0.0, 1.0);
         
         // Border limits (turtlesim window is 11x11)
@@ -115,7 +115,7 @@ private:
     bool pose_received_ = false;
     
     // Movement parameters
-    double current_linear_velocity_ = 0.4;  // Significantly decreased default speed
+    double current_linear_velocity_ = 0.8;  // Increased antelope normal speed
     double current_angular_velocity_ = 0.0;
     
     // Border limits
