@@ -1,47 +1,59 @@
 cmake_minimum_required(VERSION 3.8)
-project(predator-prey-sim)
+project(turtle_spawner)
 
-# Find dependencies
+if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
+
+# find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(geometry_msgs REQUIRED)
-find_package(std_srvs REQUIRED)
-find_package(turtlesim REQUIRED)  # For turtle control
+find_package(std_msgs REQUIRED)
+find_package(turtlesim REQUIRED)
 
 # Add executables
-add_executable(spawner_node src/spawner_node.cpp)
-# add_executable(prey_node src/prey_node.cpp)
-# add_executable(predator_node src/predator_node.cpp)
+add_executable(turtle_manager src/turtle_manager.cpp)
+ament_target_dependencies(turtle_manager rclcpp geometry_msgs std_msgs turtlesim)
 
-# Link dependencies
-ament_target_dependencies(spawner_node
-  rclcpp
-  std_srvs
-  turtlesim
-)
+add_executable(turtle_controller src/turtle_controller.cpp)
+ament_target_dependencies(turtle_controller rclcpp geometry_msgs std_msgs turtlesim)
 
-# ament_target_dependencies(prey_node
-#   rclcpp
-#   geometry_msgs
-#   message_filters  # For time sync
-# )
+add_executable(boids_prey_controller src/boids_prey_controller.cpp)
+ament_target_dependencies(boids_prey_controller rclcpp geometry_msgs std_msgs turtlesim)
 
-# ament_target_dependencies(predator_node
-#   rclcpp
-#   geometry_msgs
-# )
+add_executable(predator_controller src/predator_controller.cpp)
+ament_target_dependencies(predator_controller rclcpp geometry_msgs std_msgs turtlesim)
 
-# Install targets
+add_executable(energy_predator_controller src/energy_predator_controller.cpp)
+ament_target_dependencies(energy_predator_controller rclcpp geometry_msgs std_msgs turtlesim)
+
+# Install executables
 install(TARGETS
-  spawner_node
-  # prey_node
-  # predator_node
+  turtle_manager
+  turtle_controller
+  boids_prey_controller
+  predator_controller
+  energy_predator_controller
   DESTINATION lib/${PROJECT_NAME}
 )
 
 # Install launch files
-# install(DIRECTORY launch
-#   DESTINATION share/${PROJECT_NAME}
-# )
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  # the following line skips the linter which checks for copyrights
+  # comment the line when a copyright and license is added to all source files
+  set(ament_cmake_copyright_FOUND TRUE)
+  # the following line skips cpplint (only works in a git repo)
+  # comment the line when this package is in a git repo and when
+  # a copyright and license is added to all source files
+  set(ament_cmake_cpplint_FOUND TRUE)
+  ament_lint_auto_find_test_dependencies()
+endif()
 
 ament_package()
