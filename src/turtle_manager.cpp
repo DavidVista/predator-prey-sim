@@ -10,6 +10,10 @@ class TurtleManager : public rclcpp::Node
 public:
     TurtleManager() : Node("turtle_manager")
     {
+        // Declare parameter for single vs multi-prey mode
+        this->declare_parameter("multi_prey_mode", true);
+        multi_prey_mode_ = this->get_parameter("multi_prey_mode").as_bool();
+        
         // Create service clients
         kill_client_ = this->create_client<turtlesim::srv::Kill>("/kill");
         spawn_client_ = this->create_client<turtlesim::srv::Spawn>("/spawn");
@@ -19,7 +23,11 @@ public:
         spawn_x_dist_ = std::uniform_real_distribution<double>(2.0, 9.0);
         spawn_y_dist_ = std::uniform_real_distribution<double>(2.0, 9.0);
         
-        RCLCPP_INFO(this->get_logger(), "Turtle Manager initialized - Multi-Prey Mode");
+        if (multi_prey_mode_) {
+            RCLCPP_INFO(this->get_logger(), "Turtle Manager initialized - Multi-Prey Mode (3 prey)");
+        } else {
+            RCLCPP_INFO(this->get_logger(), "Turtle Manager initialized - Single-Prey Mode (1 prey)");
+        }
         
         // Start the turtle management process
         timer_ = this->create_wall_timer(
@@ -72,23 +80,36 @@ private:
         // Only run once
         spawn_timer_->cancel();
         
-        // Spawn 3 prey turtles at different positions
-        std::vector<std::string> prey_names = {"prey_turtle_1", "prey_turtle_2", "prey_turtle_3"};
-        std::vector<std::pair<double, double>> spawn_positions = {
-            {3.0, 3.0},  // Bottom left
-            {7.0, 7.0},  // Top right  
-            {5.0, 5.0}   // Center
-        };
-        
-        for (size_t i = 0; i < prey_names.size(); ++i) {
-            auto request = std::make_shared<turtlesim::srv::Spawn::Request>();
-            request->x = spawn_positions[i].first;
-            request->y = spawn_positions[i].second;
-            request->theta = 0.0;
-            request->name = prey_names[i];
+        if (multi_prey_mode_) {
+            // Multi-prey mode: spawn 3 prey turtles
+            std::vector<std::string> prey_names = {"prey_turtle_1", "prey_turtle_2", "prey_turtle_3"};
+            std::vector<std::pair<double, double>> spawn_positions = {
+                {3.0, 3.0},  // Bottom left
+                {7.0, 7.0},  // Top right  
+                {5.0, 5.0}   // Center
+            };
             
-            RCLCPP_INFO(this->get_logger(), "Spawning %s at (%.1f, %.1f)...", 
-                       prey_names[i].c_str(), request->x, request->y);
+            for (size_t i = 0; i < prey_names.size(); ++i) {
+                auto request = std::make_shared<turtlesim::srv::Spawn::Request>();
+                request->x = spawn_positions[i].first;
+                request->y = spawn_positions[i].second;
+                request->theta = 0.0;
+                request->name = prey_names[i];
+                
+                RCLCPP_INFO(this->get_logger(), "Spawning %s at (%.1f, %.1f)...", 
+                           prey_names[i].c_str(), request->x, request->y);
+                
+                spawn_futures_.push_back(spawn_client_->async_send_request(request).future.share());
+            }
+        } else {
+            // Single-prey mode: spawn 1 prey turtle
+            auto request = std::make_shared<turtlesim::srv::Spawn::Request>();
+            request->x = 5.0;
+            request->y = 5.0;
+            request->theta = 0.0;
+            request->name = "prey_turtle";
+            
+            RCLCPP_INFO(this->get_logger(), "Spawning prey_turtle at (%.1f, %.1f)...", request->x, request->y);
             
             spawn_futures_.push_back(spawn_client_->async_send_request(request).future.share());
         }
@@ -154,7 +175,11 @@ private:
         try {
             auto result = future.get();
             RCLCPP_INFO(this->get_logger(), "Predator turtle spawned successfully!");
-            RCLCPP_INFO(this->get_logger(), "🎯 Multi-prey simulation ready - 3 prey vs 1 energy-efficient predator!");
+            if (multi_prey_mode_) {
+                RCLCPP_INFO(this->get_logger(), "Multi-prey simulation ready - 3 prey vs 1 energy-efficient predator!");
+            } else {
+                RCLCPP_INFO(this->get_logger(), "Single-prey simulation ready - 1 prey vs 1 predator!");
+            }
         } catch (const std::exception& e) {
             RCLCPP_ERROR(this->get_logger(), "Failed to spawn predator turtle: %s", e.what());
         }
@@ -174,6 +199,9 @@ private:
     std::mt19937 random_engine_;
     std::uniform_real_distribution<double> spawn_x_dist_;
     std::uniform_real_distribution<double> spawn_y_dist_;
+    
+    // Parameter for multi-prey mode
+    bool multi_prey_mode_;
 };
 
 int main(int argc, char** argv)

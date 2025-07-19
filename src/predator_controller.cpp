@@ -126,7 +126,7 @@ private:
         catch_cooldown_ = true;
         prey_caught_ = true;
         
-        RCLCPP_INFO(this->get_logger(), "🎯 PREY CAUGHT! Distance: %.2f", catch_range_);
+        RCLCPP_INFO(this->get_logger(), "PREY CAUGHT! Distance: %.2f", catch_range_);
         
         // Kill the prey
         auto kill_request = std::make_shared<turtlesim::srv::Kill::Request>();
@@ -170,7 +170,7 @@ private:
         spawn_request->theta = 0.0;
         spawn_request->name = "prey_turtle";
         
-        RCLCPP_INFO(this->get_logger(), "🔄 Respawning prey at (%.1f, %.1f)...", spawn_x, spawn_y);
+        RCLCPP_INFO(this->get_logger(), "Respawning prey at (%.1f, %.1f)...", spawn_x, spawn_y);
         
         auto spawn_future = spawn_client_->async_send_request(
             spawn_request,
@@ -182,7 +182,7 @@ private:
     {
         try {
             auto result = future.get();
-            RCLCPP_INFO(this->get_logger(), "✅ Prey respawned successfully!");
+            RCLCPP_INFO(this->get_logger(), "Prey respawned successfully!");
             
             // Reset state
             prey_caught_ = false;

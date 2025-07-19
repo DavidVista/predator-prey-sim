@@ -212,7 +212,7 @@ private:
         // Log movement occasionally
         static int debug_counter = 0;
         if (++debug_counter % 50 == 0) { // Log every 5 seconds
-            RCLCPP_DEBUG(this->get_logger(), "🦌 %s - Speed: %.2f, Turn: %.2f", 
+            RCLCPP_DEBUG(this->get_logger(), "%s - Speed: %.2f, Turn: %.2f", 
                        prey_name_.c_str(), cmd_vel.linear.x, cmd_vel.angular.z);
         }
         

@@ -17,7 +17,8 @@ def generate_launch_description():
             package='turtle_spawner',
             executable='turtle_manager',
             name='turtle_manager',
-            output='screen'
+            output='screen',
+            parameters=[{'multi_prey_mode': False}]
         ),
         
         # Start turtle controller (prey)

@@ -124,7 +124,7 @@ private:
         // Log energy status occasionally
         static int log_counter = 0;
         if (++log_counter % 100 == 0) { // Every 10 seconds
-            RCLCPP_INFO(this->get_logger(), "⚡ Energy: %.1f/%.1f (%.1f%%) - Speed: %.2f", 
+            RCLCPP_INFO(this->get_logger(), "Energy: %.1f/%.1f (%.1f%%) - Speed: %.2f", 
                        current_energy_, max_energy_, (current_energy_/max_energy_)*100, current_linear_velocity_);
         }
     }
@@ -187,19 +187,19 @@ private:
             if (current_energy_ > 30.0) {  // Lower energy threshold for sprinting
                 linear_speed = sprint_speed_;
                 is_sprinting_ = true;
-                RCLCPP_DEBUG(this->get_logger(), "🏃 SPRINT ATTACK - Distance: %.2f, Energy: %.1f", distance, current_energy_);
+                RCLCPP_DEBUG(this->get_logger(), "SPRINT ATTACK - Distance: %.2f, Energy: %.1f", distance, current_energy_);
             } else {
                 linear_speed = hunting_speed_;
-                RCLCPP_DEBUG(this->get_logger(), "⚡ NORMAL ATTACK - Distance: %.2f, Energy: %.1f", distance, current_energy_);
+                RCLCPP_DEBUG(this->get_logger(), "NORMAL ATTACK - Distance: %.2f, Energy: %.1f", distance, current_energy_);
             }
         } else if (distance <= stalking_range_) {
             // Within stalking range - hunting speed
             linear_speed = hunting_speed_;
-            RCLCPP_DEBUG(this->get_logger(), "🎯 HUNTING MODE - Distance: %.2f, Energy: %.1f", distance, current_energy_);
+            RCLCPP_DEBUG(this->get_logger(), "HUNTING MODE - Distance: %.2f, Energy: %.1f", distance, current_energy_);
         } else {
             // Far away - energy-efficient stalking
             linear_speed = stalking_speed_;
-            RCLCPP_DEBUG(this->get_logger(), "🦁 STALKING MODE - Distance: %.2f, Energy: %.1f", distance, current_energy_);
+            RCLCPP_DEBUG(this->get_logger(), "STALKING MODE - Distance: %.2f, Energy: %.1f", distance, current_energy_);
         }
         
         // Set velocities
@@ -209,7 +209,7 @@ private:
         // Log hunting behavior occasionally
         static int log_counter = 0;
         if (++log_counter % 50 == 0) {  // Log every 5 seconds
-            RCLCPP_INFO(this->get_logger(), "🦁 Hunting prey - Distance: %.2f, Speed: %.2f, Energy: %.1f", 
+            RCLCPP_INFO(this->get_logger(), "Hunting prey - Distance: %.2f, Speed: %.2f, Energy: %.1f", 
                        distance, linear_speed, current_energy_);
         }
     }
@@ -222,7 +222,7 @@ private:
         
         static int rest_log_counter = 0;
         if (++rest_log_counter % 200 == 0) {  // Log every 20 seconds
-            RCLCPP_INFO(this->get_logger(), "😴 RESTING - Energy too low (%.1f/%.1f), recovering...", 
+            RCLCPP_INFO(this->get_logger(), "RESTING - Energy too low (%.1f/%.1f), recovering...", 
                        current_energy_, max_energy_);
         }
     }
@@ -244,7 +244,7 @@ private:
         
         static int patrol_log_counter = 0;
         if (++patrol_log_counter % 300 == 0) {  // Log every 30 seconds
-            RCLCPP_INFO(this->get_logger(), "🚶 Patrolling - No prey detected, Energy: %.1f", current_energy_);
+            RCLCPP_INFO(this->get_logger(), "Patrolling - No prey detected, Energy: %.1f", current_energy_);
         }
     }
     
@@ -257,7 +257,7 @@ private:
         catch_cooldown_ = true;
         prey_caught_ = true;
         
-        RCLCPP_INFO(this->get_logger(), "🎯 PREY CAUGHT! Distance: %.2f, Energy remaining: %.1f", catch_range_, current_energy_);
+        RCLCPP_INFO(this->get_logger(), "PREY CAUGHT! Distance: %.2f, Energy remaining: %.1f", catch_range_, current_energy_);
         
         // Kill the prey
         auto kill_request = std::make_shared<turtlesim::srv::Kill::Request>();
@@ -301,7 +301,7 @@ private:
         spawn_request->theta = 0.0;
         spawn_request->name = "prey_turtle";
         
-        RCLCPP_INFO(this->get_logger(), "🔄 Respawning prey at (%.1f, %.1f)...", spawn_x, spawn_y);
+        RCLCPP_INFO(this->get_logger(), "Respawning prey at (%.1f, %.1f)...", spawn_x, spawn_y);
         
         auto spawn_future = spawn_client_->async_send_request(
             spawn_request,
@@ -313,7 +313,7 @@ private:
     {
         try {
             auto result = future.get();
-            RCLCPP_INFO(this->get_logger(), "✅ Prey respawned successfully!");
+            RCLCPP_INFO(this->get_logger(), "Prey respawned successfully!");
             
             // Reset state
             prey_caught_ = false;
