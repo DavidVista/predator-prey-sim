@@ -154,7 +154,7 @@ private:
         try {
             auto result = future.get();
             RCLCPP_INFO(this->get_logger(), "Predator turtle spawned successfully!");
-            RCLCPP_INFO(this->get_logger(), "🎯 Multi-prey simulation ready - 3 prey vs 1 energy-efficient predator!");
+            RCLCPP_INFO(this->get_logger(), "Multi-prey simulation ready - 3 prey vs 1 energy-efficient predator!");
         } catch (const std::exception& e) {
             RCLCPP_ERROR(this->get_logger(), "Failed to spawn predator turtle: %s", e.what());
         }

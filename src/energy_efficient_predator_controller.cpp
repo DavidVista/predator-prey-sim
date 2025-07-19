@@ -65,7 +65,7 @@ public:
         );
         
         // Energy system parameters (INCREASED for higher speeds)
-        max_energy_ = 100.0;           // More energy for aggressive hunting (was 200.0)
+        max_energy_ = 200.0;           // More energy for aggressive hunting (was 200.0)
         current_energy_ = max_energy_; // Start with full energy
         energy_drain_rate_ = 1.2;      // Increased energy drain for higher speeds (was 0.8)
         energy_recovery_rate_ = 5.0;   // Faster energy recovery (was 4.0)
@@ -169,7 +169,7 @@ private:
         // Log energy status occasionally
         static int log_counter = 0;
         if (++log_counter % 100 == 0) { // Every 10 seconds
-            RCLCPP_INFO(this->get_logger(), "⚡ Energy: %.1f/%.1f (%.1f%%) - Speed: %.2f", 
+            RCLCPP_INFO(this->get_logger(), "Energy: %.1f/%.1f (%.1f%%) - Speed: %.2f", 
                        current_energy_, max_energy_, (current_energy_/max_energy_)*100, current_linear_velocity_);
         }
     }
@@ -269,7 +269,7 @@ private:
             if (target_switch_counter_ % 50 == 0) { // Re-evaluate every 5 seconds
                 if (current_target_ == nullptr || 
                     calculate_target_score(*best_target) > calculate_target_score(*current_target_) * 1.1) {
-                    RCLCPP_INFO(this->get_logger(), "🔄 Switching target from %s to %s (Score: %.3f)", 
+                    RCLCPP_INFO(this->get_logger(), "Switching target from %s to %s (Score: %.3f)", 
                                (current_target_ ? current_target_->name.c_str() : "none"),
                                best_target->name.c_str(), best_score);
                     current_target_ = best_target;
@@ -277,7 +277,7 @@ private:
             }
         } else if (current_target_ == nullptr && best_target != nullptr) {
             current_target_ = best_target;
-            RCLCPP_INFO(this->get_logger(), "🎯 Selected initial target: %s (Score: %.3f)", 
+            RCLCPP_INFO(this->get_logger(), "Selected initial target: %s (Score: %.3f)", 
                        best_target->name.c_str(), best_score);
         }
         
@@ -368,22 +368,22 @@ private:
             if (current_energy_ > 40.0) {
                 linear_speed = sprint_speed_;
                 is_sprinting_ = true;
-                RCLCPP_DEBUG(this->get_logger(), "🏃 SPRINT ATTACK %s - Distance: %.2f, Energy: %.1f", 
+                RCLCPP_DEBUG(this->get_logger(), "SPRINT ATTACK %s - Distance: %.2f, Energy: %.1f", 
                            target.name.c_str(), target.distance, current_energy_);
             } else {
                 linear_speed = hunting_speed_;
-                RCLCPP_DEBUG(this->get_logger(), "⚡ NORMAL ATTACK %s - Distance: %.2f, Energy: %.1f", 
+                RCLCPP_DEBUG(this->get_logger(), "NORMAL ATTACK %s - Distance: %.2f, Energy: %.1f", 
                            target.name.c_str(), target.distance, current_energy_);
             }
         } else if (target.distance <= stalking_range_) {
             // Within stalking range - hunting speed
             linear_speed = hunting_speed_;
-            RCLCPP_DEBUG(this->get_logger(), "🎯 HUNTING %s - Distance: %.2f, Energy: %.1f", 
+            RCLCPP_DEBUG(this->get_logger(), "HUNTING %s - Distance: %.2f, Energy: %.1f", 
                        target.name.c_str(), target.distance, current_energy_);
         } else {
             // Far away - energy-efficient stalking
             linear_speed = stalking_speed_;
-            RCLCPP_DEBUG(this->get_logger(), "🦁 STALKING %s - Distance: %.2f, Energy: %.1f", 
+            RCLCPP_DEBUG(this->get_logger(), "STALKING %s - Distance: %.2f, Energy: %.1f", 
                        target.name.c_str(), target.distance, current_energy_);
         }
         
@@ -394,7 +394,7 @@ private:
         // Log hunting status occasionally
         static int hunt_log_counter = 0;
         if (++hunt_log_counter % 100 == 0) { // Every 10 seconds
-            RCLCPP_INFO(this->get_logger(), "🎯 Hunting %s - Distance: %.2f, Efficiency: %.3f, Score: %.3f", 
+            RCLCPP_INFO(this->get_logger(), "Hunting %s - Distance: %.2f, Efficiency: %.3f, Score: %.3f", 
                        target.name.c_str(), target.distance, target.energy_efficiency, 
                        calculate_target_score(target));
         }
@@ -408,7 +408,7 @@ private:
         
         static int rest_log_counter = 0;
         if (++rest_log_counter % 200 == 0) {  // Log every 20 seconds
-            RCLCPP_INFO(this->get_logger(), "😴 RESTING - Energy too low (%.1f/%.1f), recovering...", 
+            RCLCPP_INFO(this->get_logger(), "RESTING - Energy too low (%.1f/%.1f), recovering...", 
                        current_energy_, max_energy_);
         }
     }
@@ -430,13 +430,13 @@ private:
         
         static int patrol_log_counter = 0;
         if (++patrol_log_counter % 300 == 0) {  // Log every 30 seconds
-            RCLCPP_INFO(this->get_logger(), "🚶 Patrolling - No prey detected, Energy: %.1f", current_energy_);
+            RCLCPP_INFO(this->get_logger(), "Patrolling - No prey detected, Energy: %.1f", current_energy_);
         }
     }
     
     void catch_prey(const PreyTarget& target)
     {
-        RCLCPP_INFO(this->get_logger(), "🎯 PREY CAUGHT! %s at distance %.2f, Energy remaining: %.1f", 
+        RCLCPP_INFO(this->get_logger(), "PREY CAUGHT! %s at distance %.2f, Energy remaining: %.1f", 
                    target.name.c_str(), target.distance, current_energy_);
         
         // Mark prey as dead
@@ -460,7 +460,7 @@ private:
                 try {
                     auto result = kill_futures_[i].get();
                     std::string prey_name = pending_kills_[i];
-                    RCLCPP_INFO(this->get_logger(), "✅ %s killed successfully", prey_name.c_str());
+                    RCLCPP_INFO(this->get_logger(), "%s killed successfully", prey_name.c_str());
                     
                     // Check if all prey are dead
                     int alive_prey = 0;
@@ -471,11 +471,11 @@ private:
                     }
                     
                     if (alive_prey == 0) {
-                        RCLCPP_INFO(this->get_logger(), "🏆 MISSION ACCOMPLISHED! All prey eliminated!");
+                        RCLCPP_INFO(this->get_logger(), "MISSION ACCOMPLISHED! All prey eliminated!");
                         RCLCPP_INFO(this->get_logger(), "Final Energy: %.1f/%.1f (%.1f%%)", 
                                    current_energy_, max_energy_, (current_energy_/max_energy_)*100);
                     } else {
-                        RCLCPP_INFO(this->get_logger(), "🎯 %d prey remaining...", alive_prey);
+                        RCLCPP_INFO(this->get_logger(), "%d prey remaining...", alive_prey);
                     }
                     
                 } catch (const std::exception& e) {

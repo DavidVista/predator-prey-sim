@@ -175,7 +175,7 @@ private:
     // DEBUG: Log the actual velocity being published
     static int debug_counter = 0;
     if (++debug_counter % 10 == 0) { // Log every second
-        RCLCPP_INFO(this->get_logger(), "🦌 Boids Prey - Published velocity: linear.x=%.4f, angular.z=%.4f, max_speed_=%.4f", 
+        RCLCPP_INFO(this->get_logger(), "Boids Prey - Published velocity: linear.x=%.4f, angular.z=%.4f, max_speed_=%.4f", 
                    cmd_vel.linear.x, cmd_vel.angular.z, max_speed_);
     }
     
@@ -265,7 +265,7 @@ private:
             // Log avoidance behavior occasionally
             static int avoidance_log_counter = 0;
             if (++avoidance_log_counter % 50 == 0) {  // Log every 5 seconds
-                RCLCPP_INFO(this->get_logger(), "🦌 FLEEING from predator - Distance: %.2f, Strength: %.2f", 
+                RCLCPP_INFO(this->get_logger(), "FLEEING from predator - Distance: %.2f, Strength: %.2f", 
                            distance_to_predator, avoidance_strength);
             }
         }
