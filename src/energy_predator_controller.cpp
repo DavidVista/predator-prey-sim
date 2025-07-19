@@ -31,7 +31,7 @@ public:
         );
         
         // Energy system parameters (like a cheetah) - ENHANCED for Boids hunting
-        max_energy_ = 150.0;           // More maximum energy (150%)
+        max_energy_ = 200.0;           // More maximum energy (150%)
         current_energy_ = max_energy_; // Start with full energy
         energy_drain_rate_ = 1.0;      // Reduced energy drain (more efficient)
         energy_recovery_rate_ = 3.0;   // Faster energy recovery

@@ -69,7 +69,7 @@ public:
         );
         
         // Energy system parameters (INCREASED for higher speeds)
-        max_energy_ = 100.0;           // More energy for aggressive hunting (was 200.0)
+        max_energy_ = 200.0;           // More energy for aggressive hunting (was 200.0)
         current_energy_ = max_energy_; // Start with full energy
         energy_drain_rate_ = 1.2;      // Increased energy drain for higher speeds (was 0.8)
         energy_recovery_rate_ = 5.0;   // Faster energy recovery (was 4.0)
@@ -226,6 +226,7 @@ private:
         // Log energy status occasionally
         static int log_counter = 0;
         if (++log_counter % 100 == 0) { // Every 10 seconds
+<<<<<<< HEAD
             if (is_resting_) {
                 RCLCPP_INFO(this->get_logger(), "RESTING - Energy: %.1f/%.1f (%.1f%%) - Rest duration: %.1fs", 
                            current_energy_, max_energy_, (current_energy_/max_energy_)*100, rest_duration_);
@@ -233,6 +234,10 @@ private:
                 RCLCPP_INFO(this->get_logger(), "Energy: %.1f/%.1f (%.1f%%) - Speed: %.2f", 
                            current_energy_, max_energy_, (current_energy_/max_energy_)*100, current_linear_velocity_);
             }
+=======
+            RCLCPP_INFO(this->get_logger(), "Energy: %.1f/%.1f (%.1f%%) - Speed: %.2f", 
+                       current_energy_, max_energy_, (current_energy_/max_energy_)*100, current_linear_velocity_);
+>>>>>>> dd0c26786ce801157d5cad41355f269985dc39bb
         }
     }
     
@@ -485,6 +490,7 @@ private:
             rest_position_set_ = true;
         }
         
+<<<<<<< HEAD
         // Calculate distance from rest position
         double dx = rest_position_.x - predator_pose_.x;
         double dy = rest_position_.y - predator_pose_.y;
@@ -515,6 +521,12 @@ private:
                            rest_position_.x, rest_position_.y, current_energy_, max_energy_, 
                            (current_energy_/max_energy_)*100, rest_duration_);
             }
+=======
+        static int rest_log_counter = 0;
+        if (++rest_log_counter % 200 == 0) {  // Log every 20 seconds
+            RCLCPP_INFO(this->get_logger(), "RESTING - Energy too low (%.1f/%.1f), recovering...", 
+                       current_energy_, max_energy_);
+>>>>>>> dd0c26786ce801157d5cad41355f269985dc39bb
         }
     }
     
@@ -541,7 +553,11 @@ private:
     
     void catch_prey(const PreyTarget& target)
     {
+<<<<<<< HEAD
                     RCLCPP_INFO(this->get_logger(), "PREY CAUGHT! %s at distance %.2f, Energy remaining: %.1f", 
+=======
+        RCLCPP_INFO(this->get_logger(), "PREY CAUGHT! %s at distance %.2f, Energy remaining: %.1f", 
+>>>>>>> dd0c26786ce801157d5cad41355f269985dc39bb
                    target.name.c_str(), target.distance, current_energy_);
         
         // Mark prey as dead
