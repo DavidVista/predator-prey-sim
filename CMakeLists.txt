@@ -28,6 +28,12 @@ ament_target_dependencies(predator_controller rclcpp geometry_msgs std_msgs turt
 add_executable(energy_predator_controller src/energy_predator_controller.cpp)
 ament_target_dependencies(energy_predator_controller rclcpp geometry_msgs std_msgs turtlesim)
 
+add_executable(energy_efficient_predator_controller src/energy_efficient_predator_controller.cpp)
+ament_target_dependencies(energy_efficient_predator_controller rclcpp geometry_msgs std_msgs turtlesim)
+
+add_executable(multi_prey_boids_controller src/multi_prey_boids_controller.cpp)
+ament_target_dependencies(multi_prey_boids_controller rclcpp geometry_msgs std_msgs turtlesim)
+
 # Install executables
 install(TARGETS
   turtle_manager
@@ -35,6 +41,8 @@ install(TARGETS
   boids_prey_controller
   predator_controller
   energy_predator_controller
+  energy_efficient_predator_controller
+  multi_prey_boids_controller
   DESTINATION lib/${PROJECT_NAME}
 )
 

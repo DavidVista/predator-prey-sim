@@ -2,6 +2,8 @@
 #include <turtlesim/srv/kill.hpp>
 #include <turtlesim/srv/spawn.hpp>
 #include <geometry_msgs/msg/pose2_d.hpp>
+#include <vector>
+#include <random>
 
 class TurtleManager : public rclcpp::Node
 {
@@ -12,7 +14,12 @@ public:
         kill_client_ = this->create_client<turtlesim::srv::Kill>("/kill");
         spawn_client_ = this->create_client<turtlesim::srv::Spawn>("/spawn");
         
-        RCLCPP_INFO(this->get_logger(), "Turtle Manager initialized");
+        // Initialize random number generator for spawn positions
+        random_engine_ = std::mt19937(std::random_device{}());
+        spawn_x_dist_ = std::uniform_real_distribution<double>(2.0, 9.0);
+        spawn_y_dist_ = std::uniform_real_distribution<double>(2.0, 9.0);
+        
+        RCLCPP_INFO(this->get_logger(), "Turtle Manager initialized - Multi-Prey Mode");
         
         // Start the turtle management process
         timer_ = this->create_wall_timer(
@@ -53,45 +60,73 @@ private:
             RCLCPP_WARN(this->get_logger(), "Failed to kill default turtle: %s", e.what());
         }
         
-        // Wait a bit, then spawn our custom turtle
+        // Wait a bit, then spawn our prey turtles
         spawn_timer_ = this->create_wall_timer(
             std::chrono::seconds(2),
-            std::bind(&TurtleManager::spawn_custom_turtle, this)
+            std::bind(&TurtleManager::spawn_prey_turtles, this)
         );
     }
     
-    void spawn_custom_turtle()
+    void spawn_prey_turtles()
     {
         // Only run once
         spawn_timer_->cancel();
         
-        auto request = std::make_shared<turtlesim::srv::Spawn::Request>();
-        request->x = 5.0;
-        request->y = 5.0;
-        request->theta = 0.0;
-        request->name = "prey_turtle";
+        // Spawn 3 prey turtles at different positions
+        std::vector<std::string> prey_names = {"prey_turtle_1", "prey_turtle_2", "prey_turtle_3"};
+        std::vector<std::pair<double, double>> spawn_positions = {
+            {3.0, 3.0},  // Bottom left
+            {7.0, 7.0},  // Top right  
+            {5.0, 5.0}   // Center
+        };
         
-        RCLCPP_INFO(this->get_logger(), "Spawning prey turtle at (%.1f, %.1f)...", request->x, request->y);
+        for (size_t i = 0; i < prey_names.size(); ++i) {
+            auto request = std::make_shared<turtlesim::srv::Spawn::Request>();
+            request->x = spawn_positions[i].first;
+            request->y = spawn_positions[i].second;
+            request->theta = 0.0;
+            request->name = prey_names[i];
+            
+            RCLCPP_INFO(this->get_logger(), "Spawning %s at (%.1f, %.1f)...", 
+                       prey_names[i].c_str(), request->x, request->y);
+            
+            spawn_futures_.push_back(spawn_client_->async_send_request(request).future.share());
+        }
         
-        auto future = spawn_client_->async_send_request(
-            request,
-            std::bind(&TurtleManager::spawn_prey_callback, this, std::placeholders::_1)
+        // Start a timer to check when all spawns are complete
+        spawn_check_timer_ = this->create_wall_timer(
+            std::chrono::milliseconds(100),
+            std::bind(&TurtleManager::check_spawn_completion, this)
         );
     }
     
-    void spawn_prey_callback(rclcpp::Client<turtlesim::srv::Spawn>::SharedFuture future)
+    void check_spawn_completion()
     {
-        try {
-            auto result = future.get();
-            RCLCPP_INFO(this->get_logger(), "Prey turtle spawned successfully!");
+        bool all_complete = true;
+        int completed_count = 0;
+        
+        for (auto& future : spawn_futures_) {
+            if (future.wait_for(std::chrono::milliseconds(0)) == std::future_status::ready) {
+                try {
+                    auto result = future.get();
+                    completed_count++;
+                } catch (const std::exception& e) {
+                    RCLCPP_ERROR(this->get_logger(), "Failed to spawn prey: %s", e.what());
+                }
+            } else {
+                all_complete = false;
+            }
+        }
+        
+        if (all_complete) {
+            spawn_check_timer_->cancel();
+            RCLCPP_INFO(this->get_logger(), "All %d prey spawned successfully!", completed_count);
             
-            // Start timer to spawn predator after 5 seconds
+            // Start timer to spawn predator after 3 seconds
             predator_timer_ = this->create_wall_timer(
-                std::chrono::seconds(5),
+                std::chrono::seconds(3),
                 std::bind(&TurtleManager::spawn_predator_turtle, this)
             );
-        } catch (const std::exception& e) {
-            RCLCPP_ERROR(this->get_logger(), "Failed to spawn prey turtle: %s", e.what());
         }
     }
     
@@ -119,6 +154,7 @@ private:
         try {
             auto result = future.get();
             RCLCPP_INFO(this->get_logger(), "Predator turtle spawned successfully!");
+            RCLCPP_INFO(this->get_logger(), "🎯 Multi-prey simulation ready - 3 prey vs 1 energy-efficient predator!");
         } catch (const std::exception& e) {
             RCLCPP_ERROR(this->get_logger(), "Failed to spawn predator turtle: %s", e.what());
         }
@@ -128,7 +164,16 @@ private:
     rclcpp::Client<turtlesim::srv::Spawn>::SharedPtr spawn_client_;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::TimerBase::SharedPtr spawn_timer_;
+    rclcpp::TimerBase::SharedPtr spawn_check_timer_;
     rclcpp::TimerBase::SharedPtr predator_timer_;
+    
+    // Multi-prey tracking
+    std::vector<rclcpp::Client<turtlesim::srv::Spawn>::SharedFuture> spawn_futures_;
+    
+    // Random number generation for spawn positions
+    std::mt19937 random_engine_;
+    std::uniform_real_distribution<double> spawn_x_dist_;
+    std::uniform_real_distribution<double> spawn_y_dist_;
 };
 
 int main(int argc, char** argv)

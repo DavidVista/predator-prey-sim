@@ -41,7 +41,12 @@ ros2 launch turtle_spawner boids_turtle_spawner.launch.py
 ros2 launch turtle_spawner boids_energy_spawner.launch.py
 ```
 
-### Option 5: Manual execution
+### Option 5: Multi-Prey Energy-Efficient Simulation (NEW!)
+```bash
+ros2 launch turtle_spawner multi_prey_energy_efficient.launch.py
+```
+
+### Option 6: Manual execution
 ```bash
 # Terminal 1: Start turtlesim
 ros2 run turtlesim turtlesim_node
@@ -163,6 +168,58 @@ The energy-based predator simulates realistic animal behavior like a cheetah:
 - **Sprint Decision**: Only sprints when close to prey AND has enough energy
 - **Recovery Periods**: Must rest when energy is low
 - **Efficient Movement**: Uses slower speeds to conserve energy
+
+## Multi-Prey Energy-Efficient Simulation (NEW!)
+
+The latest addition to the system is a sophisticated **multi-prey energy-efficient predator-prey simulation** with **3 prey vs 1 predator** and **no respawn**:
+
+### System Features:
+- **3 Prey Turtles**: Spawned at different positions with intelligent flocking behavior
+- **1 Energy-Efficient Predator**: Uses sophisticated target selection algorithms
+- **No Respawn**: Once prey is caught, it's gone forever
+- **Mission Completion**: Predator wins when all prey are eliminated
+
+### Multi-Prey Boids Behavior:
+- **Enhanced Flocking**: Prey interact with each other using separation, alignment, and cohesion
+- **Predator Avoidance**: All prey flee from the predator when detected
+- **Inter-Prey Communication**: Each prey knows the position of other prey
+- **Realistic Movement**: Natural flocking behavior with noise and smooth transitions
+
+### Energy-Efficient Target Selection:
+The predator uses a sophisticated **weighted scoring system** to choose the best target:
+
+#### Target Selection Factors:
+- **Distance Factor** (30% weight): Closer prey = higher score
+- **Energy Efficiency** (30% weight): Energy cost vs reward calculation
+- **Isolation Factor** (20% weight): Isolated prey = easier to catch
+- **Catch Probability** (20% weight): Likelihood of successful capture
+
+#### Energy-Efficiency Calculation:
+```
+Energy Efficiency = Reward / Energy Cost
+Energy Cost = Distance × Energy Drain Rate
+Reward = 1.0 (one prey killed)
+```
+
+#### Adaptive Strategy:
+- **High Energy (>80%)**: Aggressive hunting - target closest prey
+- **Medium Energy (20-80%)**: Balanced strategy - use weighted scoring
+- **Low Energy (<20%)**: Conservative hunting - target isolated prey
+- **Very Low Energy**: Rest and recover
+
+### Hunting Behavior:
+- **Dynamic Target Switching**: Can change targets if better opportunity arises
+- **Energy Management**: Must balance hunting vs resting
+- **Strategic Elimination**: Targets isolated prey first for easier kills
+- **Efficiency Optimization**: Chooses targets that maximize energy return
+
+### Simulation Flow:
+1. **Setup**: 3 prey spawned at different positions
+2. **Hunting Phase**: Predator selects and hunts targets using energy-efficient strategy
+3. **Elimination**: Prey are caught and killed (no respawn)
+4. **Completion**: Mission accomplished when all prey eliminated
+
+This system demonstrates advanced **artificial intelligence** and **ecological simulation** concepts!
 
 ## Next Steps
 
